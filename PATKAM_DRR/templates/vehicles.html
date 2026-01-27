@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicles - Transport Database System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Vehicles Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vehicleModal" onclick="openVehicleModal()">
+                <i class="bi bi-plus-circle"></i> Add Vehicle
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicles Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Vehicle</th>
+                        <th>License Plate</th>
+                        <th>Type</th>
+                        <th>Fuel</th>
+                        <th>Mileage</th>
+                        <th>Status</th>
+                        <th>Insurance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="vehicles-table">
+                    <tr>
+                        <td colspan="9" class="text-center">Loading vehicles...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal fade" id="vehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vehicleModalTitle">Add Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="vehicleForm">
+                    <input type="hidden" id="vehicleId">
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="make" class="form-label">Make *</label>
+                            <input type="text" class="form-control" id="make" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="model" class="form-label">Model *</label>
+                            <input type="text" class="form-control" id="model" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="year" class="form-label">Year *</label>
+                            <input type="number" class="form-control" id="year" min="1900" max="2030" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="licensePlate" class="form-label">License Plate *</label>
+                            <input type="text" class="form-control" id="licensePlate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vin" class="form-label">VIN</label>
+                            <input type="text" class="form-control" id="vin" maxlength="17">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="vehicleType" class="form-label">Vehicle Type *</label>
+                            <select class="form-select" id="vehicleType" required>
+                                <option value="">Select Type</option>
+                                <option value="truck">Truck</option>
+                                <option value="van">Van</option>
+                                <option value="car">Car</option>
+                                <option value="bus">Bus</option>
+                                <option value="motorcycle">Motorcycle</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="fuelType" class="form-label">Fuel Type</label>
+                            <select class="form-select" id="fuelType">
+                                <option value="diesel">Diesel</option>
+                                <option value="gasoline">Gasoline</option>
+                                <option value="electric">Electric</option>
+                                <option value="hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="capacity" class="form-label">Capacity</label>
+                            <input type="number" class="form-control" id="capacity" min="0">
+                            <div class="form-text">Passengers or kg for cargo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="purchaseDate" class="form-label">Purchase Date</label>
+                            <input type="date" class="form-control" id="purchaseDate">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="purchasePrice" class="form-label">Purchase Price</label>
+                            <input type="number" class="form-control" id="purchasePrice" min="0" step="0.01">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="currentMileage" class="form-label">Current Mileage</label>
+                            <input type="number" class="form-control" id="currentMileage" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="insuranceNumber" class="form-label">Insurance Number</label>
+                            <input type="text" class="form-control" id="insuranceNumber">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="insuranceExpiry" class="form-label">Insurance Expiry</label>
+                            <input type="date" class="form-control" id="insuranceExpiry">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status">
+                                <option value="active">Active</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="retired">Retired</option>
+                                <option value="accident">Accident</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveVehicle()">Save Vehicle</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentVehicleId = null;
+
+    async function loadVehicles() {
+        try {
+            const response = await fetch('/api/vehicles');
+            const vehicles = await response.json();
+            
+            const table = document.getElementById('vehicles-table');
+            if (vehicles.length === 0) {
+                table.innerHTML = '<tr><td colspan="9" class="text-center">No vehicles found</td></tr>';
+            } else {
+                table.innerHTML = vehicles.map(vehicle => `
+                    <tr>
+                        <td>${vehicle.id}</td>
+                        <td>${vehicle.year} ${vehicle.make} ${vehicle.model}</td>
+                        <td>${vehicle.license_plate}</td>
+                        <td><span class="badge bg-info">${vehicle.vehicle_type}</span></td>
+                        <td>${vehicle.fuel_type}</td>
+                        <td>${vehicle.current_mileage?.toLocaleString() || 'N/A'}</td>
+                        <td><span class="badge bg-${getStatusColor(vehicle.status)}">${vehicle.status}</span></td>
+                        <td>${formatDate(vehicle.insurance_expiry)}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editVehicle(${vehicle.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteVehicle(${vehicle.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading vehicles:', error);
+            showAlert('Error loading vehicles', 'error');
+        }
+    }
+
+    function openVehicleModal() {
+        currentVehicleId = null;
+        document.getElementById('vehicleModalTitle').textContent = 'Add Vehicle';
+        document.getElementById('vehicleForm').reset();
+        document.getElementById('vehicleId').value = '';
+    }
+
+    async function editVehicle(vehicleId) {
+        try {
+            const response = await fetch(`/api/vehicles/${vehicleId}`);
+            const vehicle = await response.json();
+            
+            currentVehicleId = vehicleId;
+            document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
+            document.getElementById('vehicleId').value = vehicle.id;
+            document.getElementById('make').value = vehicle.make;
+            document.getElementById('model').value = vehicle.model;
+            document.getElementById('year').value = vehicle.year;
+            document.getElementById('licensePlate').value = vehicle.license_plate;
+            document.getElementById('vin').value = vehicle.vin || '';
+            document.getElementById('vehicleType').value = vehicle.vehicle_type;
+            document.getElementById('fuelType').value = vehicle.fuel_type;
+            document.getElementById('capacity').value = vehicle.capacity || '';
+            document.getElementById('purchaseDate').value = vehicle.purchase_date || '';
+            document.getElementById('purchasePrice').value = vehicle.purchase_price || '';
+            document.getElementById('currentMileage').value = vehicle.current_mileage || '';
+            document.getElementById('insuranceNumber').value = vehicle.insurance_number || '';
+            document.getElementById('insuranceExpiry').value = vehicle.insurance_expiry || '';
+            document.getElementById('status').value = vehicle.status;
+            
+            const modal = new bootstrap.Modal(document.getElementById('vehicleModal'));
+            modal.show();
+        } catch (error) {
+            console.error('Error loading vehicle:', error);
+            showAlert('Error loading vehicle', 'error');
+        }
+    }
+
+    async function saveVehicle() {
+        const form = document.getElementById('vehicleForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const vehicleData = {
+            make: document.getElementById('make').value,
+            model: document.getElementById('model').value,
+            year: parseInt(document.getElementById('year').value),
+            license_plate: document.getElementById('licensePlate').value,
+            vin: document.getElementById('vin').value,
+            vehicle_type: document.getElementById('vehicleType').value,
+            fuel_type: document.getElementById('fuelType').value,
+            capacity: document.getElementById('capacity').value ? parseInt(document.getElementById('capacity').value) : null,
+            purchase_date: document.getElementById('purchaseDate').value,
+            purchase_price: document.getElementById('purchasePrice').value ? parseFloat(document.getElementById('purchasePrice').value) : null,
+            current_mileage: document.getElementById('currentMileage').value ? parseInt(document.getElementById('currentMileage').value) : null,
+            insurance_number: document.getElementById('insuranceNumber').value,
+            insurance_expiry: document.getElementById('insuranceExpiry').value,
+            status: document.getElementById('status').value
+        };
+
+        try {
+            const url = currentVehicleId ? `/api/vehicles/${currentVehicleId}` : '/api/vehicles';
+            const method = currentVehicleId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(vehicleData)
+            });
+
+            if (response.ok) {
+                showAlert(currentVehicleId ? 'Vehicle updated successfully' : 'Vehicle created successfully');
+                bootstrap.Modal.getInstance(document.getElementById('vehicleModal')).hide();
+                loadVehicles();
+            } else {
+                const error = await response.json();
+                showAlert(error.error || 'Error saving vehicle', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving vehicle:', error);
+            showAlert('Error saving vehicle', 'error');
+        }
+    }
+
+    async function deleteVehicle(vehicleId) {
+        confirmDelete(async () => {
+            try {
+                const response = await fetch(`/api/vehicles/${vehicleId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showAlert('Vehicle deleted successfully');
+                    loadVehicles();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error deleting vehicle', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting vehicle:', error);
+                showAlert('Error deleting vehicle', 'error');
+            }
+        });
+    }
+
+    function getStatusColor(status) {
+        switch(status) {
+            case 'active': return 'success';
+            case 'maintenance': return 'warning';
+            case 'retired': return 'secondary';
+            case 'accident': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    // Load vehicles on page load
+    document.addEventListener('DOMContentLoaded', loadVehicles);
+</script>
+{% endblock %}

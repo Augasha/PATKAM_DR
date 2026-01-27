@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Transport Database System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Active Drivers</div>
+                        <div class="h3 mb-0 font-weight-bold" id="active-drivers-count">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people-fill fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Active Vehicles</div>
+                        <div class="h3 mb-0 font-weight-bold" id="active-vehicles-count">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-truck fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Today's Trips</div>
+                        <div class="h3 mb-0 font-weight-bold" id="trips-today-count">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-map fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Maintenance Due</div>
+                        <div class="h3 mb-0 font-weight-bold" id="maintenance-due-count">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-tools fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Trips</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Driver</th>
+                                <th>Vehicle</th>
+                                <th>Status</th>
+                                <th>Distance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-trips-table">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Upcoming Maintenance</h5>
+            </div>
+            <div class="card-body">
+                <div id="upcoming-maintenance-list">
+                    <p class="text-center">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadDashboardData() {
+        try {
+            const response = await fetch('/api/dashboard/stats');
+            const data = await response.json();
+            
+            // Update statistics
+            document.getElementById('active-drivers-count').textContent = data.stats.active_drivers;
+            document.getElementById('active-vehicles-count').textContent = data.stats.active_vehicles;
+            document.getElementById('trips-today-count').textContent = data.stats.trips_today;
+            document.getElementById('maintenance-due-count').textContent = data.stats.maintenance_due;
+            
+            // Update recent trips table
+            const tripsTable = document.getElementById('recent-trips-table');
+            if (data.recent_trips.length === 0) {
+                tripsTable.innerHTML = '<tr><td colspan="5" class="text-center">No recent trips</td></tr>';
+            } else {
+                tripsTable.innerHTML = data.recent_trips.map(trip => `
+                    <tr>
+                        <td>${formatDate(trip.trip_date)}</td>
+                        <td>${trip.driver_name || 'N/A'}</td>
+                        <td>${trip.vehicle_name || 'N/A'}</td>
+                        <td><span class="badge bg-${getStatusColor(trip.status)}">${trip.status}</span></td>
+                        <td>${trip.distance_covered || 'N/A'} km</td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Update upcoming maintenance
+            const maintenanceList = document.getElementById('upcoming-maintenance-list');
+            if (data.upcoming_maintenance.length === 0) {
+                maintenanceList.innerHTML = '<p class="text-center">No upcoming maintenance</p>';
+            } else {
+                maintenanceList.innerHTML = data.upcoming_maintenance.map(record => `
+                    <div class="alert alert-warning alert-sm mb-2">
+                        <strong>${record.vehicle_name}</strong><br>
+                        <small>Due: ${formatDate(record.next_service_date)}</small>
+                    </div>
+                `).join('');
+            }
+            
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            showAlert('Error loading dashboard data', 'error');
+        }
+    }
+    
+    function getStatusColor(status) {
+        switch(status) {
+            case 'completed': return 'success';
+            case 'in_progress': return 'primary';
+            case 'scheduled': return 'info';
+            case 'cancelled': return 'danger';
+            default: return 'secondary';
+        }
+    }
+    
+    function refreshDashboard() {
+        loadDashboardData();
+    }
+    
+    // Load dashboard data on page load
+    document.addEventListener('DOMContentLoaded', loadDashboardData);
+    
+    // Auto-refresh every 5 minutes
+    setInterval(loadDashboardData, 300000);
+</script>
+{% endblock %}
