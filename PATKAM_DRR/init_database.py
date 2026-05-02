@@ -33,13 +33,7 @@ def create_database():
 def insert_sample_data(cursor, conn):
     """Insert sample data for testing"""
     
-    # Sample drivers
-    drivers = [
-        ('John', 'Smith', 'DL001', '555-0101', 'john.smith@email.com', '123 Main St', '1985-03-15', '2020-01-15', '2025-03-15', 'active'),
-        ('Sarah', 'Johnson', 'DL002', '555-0102', 'sarah.j@email.com', '456 Oak Ave', '1990-07-22', '2019-06-01', '2024-07-22', 'active'),
-        ('Mike', 'Wilson', 'DL003', '555-0103', 'mike.w@email.com', '789 Pine Rd', '1988-11-30', '2021-03-10', '2026-11-30', 'active'),
-        ('Emily', 'Brown', 'DL004', '555-0104', 'emily.b@email.com', '321 Elm St', '1992-05-18', '2022-01-05', '2027-05-18', 'inactive')
-    ]
+    
     
     cursor.executemany('''
         INSERT INTO drivers (first_name, last_name, license_number, phone, email, address, 
