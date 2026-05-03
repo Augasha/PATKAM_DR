@@ -102,7 +102,7 @@ def insert_sample_data(cursor, conn):
     
     # Sample fuel records
     fuel_records = [
-        (1, 1, '2024-01-15', 'diesel', 40.5, 1.25, 50.63, 45030, 'Shell Station', 'Credit Card'),
+        (1, 1, '2024-01-15', 'gasoline', 40.5, 1.25, 50.63, 45030, 'Shell Station', 'Credit Card'),
         (2, 2, '2024-01-15', 'gasoline', 25.2, 1.35, 34.02, 32020, 'BP Gas', 'Debit Card'),
         (3, 3, '2024-01-16', 'diesel', 85.0, 1.22, 103.70, 150100, 'Pilot Travel Center', 'Company Card'),
         (1, 1, '2024-01-18', 'diesel', 35.8, 1.28, 45.82, 45080, 'Chevron', 'Credit Card')
